@@ -13,9 +13,9 @@
 #else
 #include "sl_cr_tank_drive.hpp"
 #endif
-#include "sl_cr_encoder.hpp"
-#include "sl_cr_motor_driver.hpp"
-#include "sl_cr_pid_loop.hpp"
+#include "sl_robot_encoder.hpp"
+#include "sl_robot_motor_driver.hpp"
+#include "sl_robot_pid_loop.hpp"
 
 /* Loop Task periods in ms */
 #define SL_CR_CONTROL_LOOP_PERIOD 10
@@ -26,9 +26,10 @@
 
 typedef struct
 {
-  sl_cr_motor_driver_c                          *driver;
-  sl_cr_encoder_c                               *encoder;
-  sl_cr_control_loop_c<sl_cr_rpm_t,sl_cr_rpm_t> *control_loop;
+  sandor_laboratories::robot::motor_driver_c                              *driver;
+  sandor_laboratories::robot::encoder_c                                   *encoder;
+  sandor_laboratories::robot::control_loop_c
+    <sandor_laboratories::robot::rpm_t,sandor_laboratories::robot::rpm_t> *control_loop;
 } sl_cr_drive_motor_stack_s;
 
 typedef struct 

@@ -8,11 +8,11 @@
 #include <Arduino.h>
 
 #include "sl_cr_failsafe.hpp"
-#include "sl_cr_log.hpp"
+#include "sl_robot_log.hpp"
 #include "sl_cr_sbus.hpp"
-#include "sl_cr_utils.hpp"
+#include "sl_robot_utils.hpp"
 
-using namespace sandor_laboratories::combat_robot;
+using namespace sandor_laboratories::robot;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Failsafe Utilities */
@@ -20,19 +20,22 @@ using namespace sandor_laboratories::combat_robot;
 
 #define SL_CR_ARM_SWITCH_THRESHOLD ((SL_CR_RC_CH_MAX_VALUE*90)/100)
 
+/* Default user data pointer for failsafe check */
+void* failsafe_check_user_data_ptr = nullptr;
+
 /* Master failsafe mask. Each bit corresponds to a reason from failsafe_mask_t.  
    Motors are to be powered if and only if mask is 0x0.
    Initialize with BOOT bit and ARM_SWITCH_DISARM bit such that nothing can activate until bootup is complete and the arm switch is cleared to avoid unexpected arming */
-volatile failsafe_mask_t sl_cr_failsafe_mask = SL_CR_FAILSAFE_BIT(FAILSAFE_BOOT) | SL_CR_FAILSAFE_BIT(FAILSAFE_ARM_SWITCH_DISARM);
+volatile combat::failsafe_mask_t sl_cr_failsafe_mask = SL_CR_FAILSAFE_BIT(combat::FAILSAFE_BOOT) | SL_CR_FAILSAFE_BIT(combat::FAILSAFE_ARM_SWITCH_DISARM);
 
 /* Timeout timer reference time (last failsafe entry) to force rearming */
-sl_cr_time_t armswitch_rearm_timeout_start = 0; //millis() starts from 0 at bootup
+time_t armswitch_rearm_timeout_start = 0; //millis() starts from 0 at bootup
 bool         rearm_timeout_expired = false;
 /* Tracks number of failsafes since forcing rearm */
 unsigned int repeat_failsafe_rearm_counter = 0;
 bool         repeat_failsafe_rearm_required = false;
 
-void sandor_laboratories::combat_robot::set_failsafe_mask(failsafe_reason_e reason)
+void combat::set_failsafe_mask(failsafe_reason_e reason)
 {
   critical_section_enter();
   failsafe_mask_t old_failsafe_mask = sl_cr_failsafe_mask;
@@ -42,7 +45,7 @@ void sandor_laboratories::combat_robot::set_failsafe_mask(failsafe_reason_e reas
   
   if(0 == (old_failsafe_mask & SL_CR_FAILSAFE_BIT(reason)))
   {
-    SL_CR_LOG_SNPRINTF(LOG_KEY_FAILSAFE, LOG_LEVEL_INFO, "New failsafe mask: 0x%x", new_failsafe_mask);
+    log_snprintf(LOG_KEY_FAILSAFE, LOG_LEVEL_INFO, "New failsafe mask: 0x%x", new_failsafe_mask);
 
     if(0 == old_failsafe_mask)
     {
@@ -55,7 +58,7 @@ void sandor_laboratories::combat_robot::set_failsafe_mask(failsafe_reason_e reas
     }
   }
 }
-void sandor_laboratories::combat_robot::clear_failsafe_mask(failsafe_reason_e reason)
+void combat::clear_failsafe_mask(failsafe_reason_e reason)
 {
   critical_section_enter();
   failsafe_mask_t old_failsafe_mask = sl_cr_failsafe_mask;
@@ -65,14 +68,14 @@ void sandor_laboratories::combat_robot::clear_failsafe_mask(failsafe_reason_e re
   
   if(0 != (old_failsafe_mask & SL_CR_FAILSAFE_BIT(reason)))
   {
-    SL_CR_LOG_SNPRINTF(LOG_KEY_FAILSAFE, LOG_LEVEL_INFO, "New failsafe mask: 0x%x", new_failsafe_mask);
+    log_snprintf(LOG_KEY_FAILSAFE, LOG_LEVEL_INFO, "New failsafe mask: 0x%x", new_failsafe_mask);
     if(0 == new_failsafe_mask)
     {
       log_cstring(LOG_KEY_FAILSAFE, LOG_LEVEL_INFO, "ARMED!");
     }
   }
 }
-void sandor_laboratories::combat_robot::set_failsafe_mask_value(failsafe_reason_e reason, bool value)
+void combat::set_failsafe_mask_value(failsafe_reason_e reason, bool value)
 {
   if(value)
   {
@@ -83,7 +86,7 @@ void sandor_laboratories::combat_robot::set_failsafe_mask_value(failsafe_reason_
     clear_failsafe_mask(reason);
   }
 }
-failsafe_mask_t sandor_laboratories::combat_robot::get_failsafe_mask()
+combat::failsafe_mask_t combat::get_failsafe_mask()
 {
   failsafe_mask_t ret_val = SL_CR_FAILSAFE_INVALID_MASK;
 
@@ -93,11 +96,11 @@ failsafe_mask_t sandor_laboratories::combat_robot::get_failsafe_mask()
 
   return ret_val;
 }
-bool sandor_laboratories::combat_robot::get_failsafe_set()
+bool combat::get_failsafe_set()
 {
   return (0 != get_failsafe_mask());
 }
-bool sandor_laboratories::combat_robot::get_failsafe_set(failsafe_reason_e reason)
+bool combat::get_failsafe_set(failsafe_reason_e reason)
 {
   return (0 != (get_failsafe_mask() & SL_CR_FAILSAFE_BIT(reason)));
 }
@@ -109,7 +112,7 @@ bool sandor_laboratories::combat_robot::get_failsafe_set(failsafe_reason_e reaso
 bool prearmswitch_first = false;
 /* Only arm if both arm switches are first released */
 bool armswitches_released_first = false;
-void sandor_laboratories::combat_robot::failsafe_armswitch_loop()
+void combat::failsafe_armswitch_loop()
 {
   /* Check if arm switch is requsting robot to be armed */
   const sl_cr_rc_channel_value_t armswitch_raw = sl_cr_sbus_get_ch_value(SL_CR_ARM_SWITCH_CH);
@@ -164,3 +167,8 @@ void sandor_laboratories::combat_robot::failsafe_armswitch_loop()
     armswitches_released_first = true;
   }
 }
+
+bool combat::failsafe_check(const void*) 
+{
+  return get_failsafe_set();
+};

@@ -8,7 +8,7 @@
 #ifndef __SL_CR_ARCADE_DRIVE_HPP__
 #define __SL_CR_ARCADE_DRIVE_HPP__
 
-#include "sl_cr_motor_driver.hpp"
+#include "sl_robot_motor_driver.hpp"
 #include "sl_cr_types.hpp"
 
 /* RC channel values < CENTER+DEADZONE && > CENTER-DEADZONE will be treated as neutral */
@@ -17,22 +17,23 @@
 class sl_cr_arcade_drive_c
 {
   private:
-    sl_cr_motor_driver_c     *left_motor;
-    sl_cr_motor_driver_c     *right_motor;
-    sl_cr_rc_channel_t        throttle_channel;
-    sl_cr_rc_channel_t        steering_channel;
+    sandor_laboratories::robot::motor_driver_c *left_motor;
+    sandor_laboratories::robot::motor_driver_c *right_motor;
+    sl_cr_rc_channel_t  throttle_channel;
+    sl_cr_rc_channel_t  steering_channel;
 
     /* RC channel values < CENTER+DEADZONE && > CENTER-DEADZONE will be treated as neutral */
     sl_cr_rc_channel_value_t  deadzone;
 
+    const void * failsafe_user_data_ptr = nullptr;
     /* Function pointer to call to check if failsafe has been triggered */
-    sl_cr_failsafe_f          failsafe_check;
+    sandor_laboratories::robot::failsafe_f failsafe;
 
     /* Initializes class with default values */
     void init();
 
     /* Gets rpm value within motor range proportional to RC value */
-    sl_cr_rpm_t get_motor_speed_from_rc_value(sl_cr_rc_channel_value_t rc_value, const sl_cr_motor_driver_c* motor);
+    sandor_laboratories::robot::rpm_t get_motor_speed_from_rc_value(sl_cr_rc_channel_value_t rc_value, const sandor_laboratories::robot::motor_driver_c* motor);
 
     /* Compute motor speeds */
     void set_motor_speeds();
@@ -40,8 +41,8 @@ class sl_cr_arcade_drive_c
   public:
     sl_cr_arcade_drive_c
     (
-      sl_cr_motor_driver_c* left_motor, 
-      sl_cr_motor_driver_c* right_motor, 
+      sandor_laboratories::robot::motor_driver_c* left_motor, 
+      sandor_laboratories::robot::motor_driver_c* right_motor, 
       sl_cr_rc_channel_t throttle_channel, 
       sl_cr_rc_channel_t steering_channel
     );

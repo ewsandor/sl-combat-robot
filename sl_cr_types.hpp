@@ -10,32 +10,7 @@
 
 #include <stdint.h>
 
-/* Time type (ms) */
-typedef unsigned long sl_cr_time_t;
-
-/* Velocity type */
-typedef int sl_cr_velocity_t;
-/* RPM type */
-typedef int sl_cr_rpm_t;
-
-/* Failsafe function pointer */
-typedef bool (*sl_cr_failsafe_f)(void);
-
-/* Hardware Pin Type */
-typedef uint8_t sl_cr_pin_t;
-#define SL_CR_PIN_INVALID 0xFF
-/* PWM Frequency in Hz */
-typedef float        sl_cr_pwm_freq_t;
-/* PWM Resolution in Bits */
-typedef unsigned int sl_cr_pwm_resolution_t;
-/* PWM Value */
-typedef unsigned int sl_cr_pwm_value_t;
-typedef struct
-{
-  sl_cr_pwm_freq_t       frequency;
-  sl_cr_pwm_resolution_t resolution;
-  sl_cr_pwm_value_t      max_value;
-} sl_cr_pwm_config_s;
+#include "sl_robot_types.hpp"
 
 /* RC Channel Index, starts from 1 */
 typedef unsigned int sl_cr_rc_channel_t;

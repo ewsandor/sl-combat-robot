@@ -84,6 +84,7 @@
 /////////////////////////////////////////////////////////////////
 /////////////////////// FreeRTOS ////////////////////////////////
 /* Default stack size to use for FreeRTOS Tasks (in words) */
+#define SL_CR_LOG_TASK_STACK_SIZE 256
 #define SL_CR_DEFAULT_TASK_STACK_SIZE 256
 /* Loop Task stack sizes */
 #define SL_CR_CONTROL_LOOP_TASK_STACK_SIZE SL_CR_DEFAULT_TASK_STACK_SIZE
