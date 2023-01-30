@@ -12,11 +12,13 @@
 #include "sl_cr_config.h"
 #include "sl_cr_drive.hpp"
 #include "sl_cr_failsafe.hpp"
-#include "sl_robot_log_task.hpp"
 #include "sl_cr_sbus.hpp"
 #include "sl_cr_types.hpp"
-#include "sl_robot_utils.hpp"
 #include "sl_cr_version.h"
+
+#include "sl_robot_imu.hpp"
+#include "sl_robot_log_task.hpp"
+#include "sl_robot_utils.hpp"
 
 using namespace sandor_laboratories::robot;
 
@@ -157,6 +159,10 @@ static void serial_debug_task(void *)
 }
 #endif
 
+
+/* IMU LOGIC */
+imu_c *imu;
+
 void setup()
 {
   /* Enable Bootup LED */
@@ -199,6 +205,10 @@ void setup()
 
   drive_data_ptr = sl_cr_drive_init();
   log_cstring(LOG_KEY_BOOT, LOG_LEVEL_INFO, "Drive Configured.");
+
+  /* Init IMU */
+  imu = new imu_c();
+  log_cstring(LOG_KEY_BOOT, LOG_LEVEL_INFO, "IMU Configured.");
 
   /* Configure FreeRTOS */
   #ifdef _SERIAL_DEBUG_MODE_
